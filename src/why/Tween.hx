@@ -18,11 +18,13 @@ class Tween {
 			return if(beginning < 0) {
 				false;
 			} else {
-				var elapsed = Timer.stamp() - beginning;
-				var progress = elapsed / time;
-				if(progress > 1) {
-					beginning = -1;
-					progress = 1;
+				final elapsed = Timer.stamp() - beginning;
+				final progress = switch elapsed / time {
+					case v if(v > 1):
+						beginning = -1;
+						1;
+					case v:
+						v;
 				}
 				apply(progress);
 				true;
@@ -39,7 +41,7 @@ private class DefaultScheduler implements Scheduler {
 		#if (js && !nodejs)
 		(function loop() if(f()) js.Browser.window.requestAnimationFrame(cast loop))();
 		#else
-		var timer = new Timer(0);
+		final timer = new Timer(0);
 		timer.run = function() if(!f()) timer.stop();
 		#end
 	}
