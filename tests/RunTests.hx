@@ -11,14 +11,14 @@ class RunTests {
 	
 	function new() {}
 	
-	public function tween() {
-		why.Tween.tween(1000, v -> if(log(v) == 1) asserts.done());
+	public function time() {
+		why.Tween.time(1000, v -> if(log(v) == 1) asserts.done());
 		return asserts;
 	}
 	
-	public function stop() {
+	public function cancel() {
 		var progress = 0.;
-		var binding = why.Tween.tween(1000, v -> progress = v);
+		var binding = why.Tween.time(1000, v -> progress = v);
 		haxe.Timer.delay(binding.cancel, 500);
 		haxe.Timer.delay(() -> {
 			asserts.assert(progress > 0.49);

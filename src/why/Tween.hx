@@ -7,10 +7,17 @@ using tink.CoreApi;
 
 class Tween {
 	static final DEFAULT_SCHEDULER = new DefaultScheduler();
-	
-	public static function tween(timeMs:Int, apply:(progress:Float)->Void, ?scheduler:Scheduler):CallbackLink {
+
+	/**
+	 * Time-based tweening
+	 * @param duration in milliseconds 
+	 * @param apply called on every tick
+	 * @param scheduler 
+	 * @return CallbackLink to cancel the tween
+	 */
+	public static function time(milliseconds:Int, apply:(progress:Float)->Void, ?scheduler:Scheduler):CallbackLink {
 		if(scheduler == null) scheduler = DEFAULT_SCHEDULER;
-		final time = timeMs / 1000;
+		final time = milliseconds / 1000;
 		var beginning = Timer.stamp();
 		
 		apply(0);
@@ -20,7 +27,7 @@ class Tween {
 			} else {
 				final elapsed = Timer.stamp() - beginning;
 				final progress = switch elapsed / time {
-					case v if(v > 1):
+					case v if(v >= 1):
 						beginning = -1;
 						1;
 					case v:
@@ -38,7 +45,9 @@ class Tween {
 private class DefaultScheduler implements Scheduler {
 	public function new() {}
 	public function schedule(f:Void->Bool) {
-		#if (js && !nodejs)
+		#if nodejs
+		(function loop() if(f()) js.Node.setImmediate(loop))();
+		#elseif js
 		(function loop() if(f()) js.Browser.window.requestAnimationFrame(cast loop))();
 		#else
 		final timer = new Timer(0);
